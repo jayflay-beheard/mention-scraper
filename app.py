@@ -2,7 +2,6 @@ import streamlit as st
 import pandas as pd
 import requests
 from bs4 import BeautifulSoup
-import snscrape.modules.twitter as sntwitter
 from datetime import datetime
 
 st.set_page_config(page_title="Mention Scraper", layout="wide")
@@ -12,19 +11,6 @@ st.markdown("This tool pulls raw mentions of a company from Twitter, Reddit, and
 company_name = st.text_input("Enter Company Name (for Twitter & Reddit)")
 g2_url = st.text_input("Enter G2 Reviews URL (optional)")
 
-@st.cache_data(show_spinner=False)
-def scrape_twitter(company_name, max_tweets=25):
-    results = []
-    for i, tweet in enumerate(sntwitter.TwitterSearchScraper(f'"{company_name}" lang:en').get_items()):
-        if i >= max_tweets:
-            break
-        results.append({
-            "source": "Twitter",
-            "content": tweet.content,
-            "timestamp": tweet.date.strftime("%Y-%m-%d %H:%M:%S"),
-            "url": tweet.url
-        })
-    return results
 
 @st.cache_data(show_spinner=False)
 def scrape_reddit(company_name, max_posts=10):
@@ -69,7 +55,6 @@ def scrape_g2_reviews(g2_url, max_reviews=10):
 if st.button("Scrape Mentions"):
     data = []
     if company_name:
-        data.extend(scrape_twitter(company_name))
         data.extend(scrape_reddit(company_name))
     if g2_url:
         data.extend(scrape_g2_reviews(g2_url))
